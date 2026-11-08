@@ -7,6 +7,7 @@ import unicodedata
 FICHIER_FICHES = "fiches.txt"
 FICHIER_SCORES = "scores.json"
 QUESTIONS_PAR_SESSION = 2
+MODE_AUTO_EVALUATION = True
 
 
 def charger_fiches(chemin):
@@ -78,22 +79,38 @@ def choisir_fiches(fiches, scores, nombre):
 
     return tirage
 
+def demander_auto_evaluation():
+    while True:
+        reponse = input("Tu avais juste ? [o/n] ").strip().lower()
+        if reponse in ("o", "oui", "y"):
+            return True
+        if reponse in ("n", "non"):
+            return False
+        print("Reponds par o ou n.")
 
 def poser_questions(tirage, scores):
     bonnes = 0
 
     for numero, (question, reponse) in enumerate(tirage, start=1):
         print(f"\n[{numero}/{len(tirage)}] {question}")
-        proposition = input("> ")
+
+        if MODE_AUTO_EVALUATION:
+            input("(Entree pour voir la reponse) ")
+            print(f"Reponse : {reponse}")
+            correct = demander_auto_evaluation()
+        else:
+            proposition = input("> ")
+            correct = reponse_acceptee(proposition, reponse)
+            if not correct:
+                print(f"Faux. Reponse attendue : {reponse}")
 
         score = scores.setdefault(question, {"reussites": 0, "echecs": 0})
 
-        if reponse_acceptee(proposition, reponse):
+        if correct:
             print("Correct")
             score["reussites"] += 1
             bonnes += 1
         else:
-            print(f"Faux. Reponse attendue : {reponse}")
             score["echecs"] += 1
 
     return bonnes
