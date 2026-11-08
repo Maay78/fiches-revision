@@ -4,6 +4,7 @@ import random
 
 FICHIER_FICHES = "fiches.txt"
 FICHIER_SCORES = "scores.json"
+QUESTIONS_PAR_SESSION = 2
 
 
 def charger_fiches(chemin):
@@ -98,9 +99,13 @@ def afficher_bilan(fiches, scores):
 fiches = charger_fiches(FICHIER_FICHES)
 scores = charger_scores(FICHIER_SCORES)
 
-print(f"{len(fiches)} fiches chargees")
+print(f"{len(fiches)} fiches disponibles")
 
-tirage = choisir_fiches(fiches, scores, nombre=len(fiches))
+nombre = min(QUESTIONS_PAR_SESSION, len(fiches))
+tirage = choisir_fiches(fiches, scores, nombre)
+
+print(f"Session de {nombre} questions\n")
+
 bonnes = poser_questions(tirage, scores)
 
 sauvegarder_scores(FICHIER_SCORES, scores)
