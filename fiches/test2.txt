@@ -1,0 +1,3 @@
+Vrai ou faux : il y a 8 jours dans une semaine. | faux
+Vrai ou faux : un triangle a trois côtés. | vrai
+Vrai ou faux : les tomates sont des légumes. | faux

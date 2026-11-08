@@ -4,9 +4,9 @@ import random
 import difflib
 import unicodedata
 
-FICHIER_FICHES = "fiches.txt"
+DOSSIER_FICHES = "fiches"
 FICHIER_SCORES = "scores.json"
-QUESTIONS_PAR_SESSION = 2
+QUESTIONS_PAR_SESSION = 5
 MODE_AUTO_EVALUATION = True
 
 
@@ -21,17 +21,36 @@ def charger_fiches(chemin):
             fiches.append((question.strip(), reponse.strip()))
     return fiches
 
+def lister_paquets(dossier):
+    if not os.path.isdir(dossier):
+        return []
+    noms = [f for f in os.listdir(dossier) if f.endswith(".txt")]
+    return sorted(noms)
 
-def charger_scores(chemin):
+
+def choisir_paquet(paquets):
+    print("Paquets disponibles :")
+    for numero, nom in enumerate(paquets, start=1):
+        print(f"  {numero}. {nom[:-4]}")
+
+    while True:
+        saisie = input("Lequel ? ").strip()
+        if saisie.isdigit() and 1 <= int(saisie) <= len(paquets):
+            return paquets[int(saisie) - 1]
+        print("Numero invalide.")
+
+def charger_scores(chemin, paquet):
     if not os.path.exists(chemin):
-        return {}
+        return {}, {}
     with open(chemin, encoding="utf-8") as f:
-        return json.load(f)
+        tous = json.load(f)
+    return tous, tous.get(paquet, {})
 
 
-def sauvegarder_scores(chemin, scores):
+def sauvegarder_scores(chemin, tous, paquet, scores):
+    tous[paquet] = scores
     with open(chemin, "w", encoding="utf-8") as f:
-        json.dump(scores, f, ensure_ascii=False, indent=2)
+        json.dump(tous, f, ensure_ascii=False, indent=2)
 
 
 def normaliser(texte):
@@ -90,7 +109,6 @@ def demander_auto_evaluation():
 
 def poser_questions(tirage, scores):
     bonnes = 0
-
     for numero, (question, reponse) in enumerate(tirage, start=1):
         print(f"\n[{numero}/{len(tirage)}] {question}")
 
@@ -132,10 +150,21 @@ def afficher_bilan(fiches, scores):
         print(f"  {question}  ({score['reussites']} ok / {score['echecs']} ko)")
 
 
-fiches = charger_fiches(FICHIER_FICHES)
-scores = charger_scores(FICHIER_SCORES)
+paquets = lister_paquets(DOSSIER_FICHES)
 
-print(f"{len(fiches)} fiches disponibles")
+if not paquets:
+    print(f"Aucun paquet trouve dans le dossier {DOSSIER_FICHES}.")
+    raise SystemExit
+
+if len(paquets) == 1:
+    paquet = paquets[0]
+else:
+    paquet = choisir_paquet(paquets)
+
+fiches = charger_fiches(os.path.join(DOSSIER_FICHES, paquet))
+tous_les_scores, scores = charger_scores(FICHIER_SCORES, paquet)
+
+print(f"\n{paquet[:-4]} : {len(fiches)} fiches disponibles")
 
 nombre = min(QUESTIONS_PAR_SESSION, len(fiches))
 tirage = choisir_fiches(fiches, scores, nombre)
@@ -144,7 +173,7 @@ print(f"Session de {nombre} questions\n")
 
 bonnes = poser_questions(tirage, scores)
 
-sauvegarder_scores(FICHIER_SCORES, scores)
+sauvegarder_scores(FICHIER_SCORES, tous_les_scores, paquet, scores)
 
 print(f"\nScore : {bonnes}/{len(tirage)}")
 afficher_bilan(fiches, scores)
