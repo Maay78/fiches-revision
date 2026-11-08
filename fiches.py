@@ -1,6 +1,8 @@
 import json
 import os
 import random
+import difflib
+import unicodedata
 
 FICHIER_FICHES = "fiches.txt"
 FICHIER_SCORES = "scores.json"
@@ -32,7 +34,24 @@ def sauvegarder_scores(chemin, scores):
 
 
 def normaliser(texte):
-    return texte.strip().lower()
+    texte = texte.strip().lower()
+    sans_accents = unicodedata.normalize("NFD", texte)
+    return "".join(c for c in sans_accents if unicodedata.category(c) != "Mn")
+
+
+def reponse_acceptee(proposition, attendue):
+    proposition = normaliser(proposition)
+    attendue = normaliser(attendue)
+
+    if proposition == attendue:
+        return True
+
+    # Sur une reponse tres courte, une lettre de difference change le sens
+    if len(attendue) < 5:
+        return False
+
+    similarite = difflib.SequenceMatcher(None, proposition, attendue).ratio()
+    return similarite >= 0.85
 
 
 def poids(score):
@@ -69,7 +88,7 @@ def poser_questions(tirage, scores):
 
         score = scores.setdefault(question, {"reussites": 0, "echecs": 0})
 
-        if normaliser(proposition) == normaliser(reponse):
+        if reponse_acceptee(proposition, reponse):
             print("Correct")
             score["reussites"] += 1
             bonnes += 1
