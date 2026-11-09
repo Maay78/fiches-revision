@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Révisions</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 0 20px;
+            background: #1e1e22;
+            color: #e8e8ea;
+        }
+        h1 { font-weight: 500; font-size: 1.6rem; }
+        ul { list-style: none; padding: 0; }
+        li { margin: 10px 0; }
+        a {
+            display: block;
+            padding: 14px 18px;
+            background: #2a2a30;
+            border-radius: 8px;
+            color: #e8e8ea;
+            text-decoration: none;
+        }
+        a:hover { background: #4A6FA5; }
+        .vide { color: #9a9aa2; }
+    </style>
+</head>
+<body>
+    <h1>Quel paquet veux-tu réviser ?</h1>
+
+    {% if paquets %}
+        <ul>
+        {% for paquet in paquets %}
+            <li><a href="/reviser/{{ paquet }}">{{ paquet[:-4] }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p class="vide">Aucun paquet dans le dossier fiches.</p>
+    {% endif %}
+</body>
+</html>
