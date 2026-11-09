@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Révisions</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 0 20px;
+            background: #1e1e22;
+            color: #e8e8ea;
+        }
+        .compteur { color: #9a9aa2; font-size: 0.9rem; }
+        .question { font-size: 1.25rem; margin: 24px 0; }
+        .reponse {
+            font-size: 1.1rem;
+            padding: 18px;
+            background: #2a2a30;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        button {
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 12px 20px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #2a2a30;
+            color: #e8e8ea;
+            cursor: pointer;
+        }
+        button:hover { background: #4A6FA5; }
+        #voir { background: #4A6FA5; }
+        .cache { display: none; }
+    </style>
+</head>
+<body>
+    <p class="compteur">Question {{ numero }} / {{ total }}</p>
+    <p class="question">{{ question }}</p>
+
+    <button id="voir" onclick="afficher()">Voir la réponse</button>
+
+    <div id="suite" class="cache">
+        <p class="reponse">{{ reponse }}</p>
+        <form method="post" action="/repondre">
+            <button name="resultat" value="juste">Je savais</button>
+            <button name="resultat" value="faux">Je ne savais pas</button>
+        </form>
+    </div>
+
+    <script>
+        function afficher() {
+            document.getElementById("voir").classList.add("cache");
+            document.getElementById("suite").classList.remove("cache");
+        }
+    </script>
+</body>
+</html>
